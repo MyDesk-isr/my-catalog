@@ -3,44 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>קטלוג מוצרים</title>
+    <title>קטלוג מוצרים לצוות</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
-        input { width: 90%; max-width: 500px; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 25px; font-size: 16px; outline: none; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; max-width: 1000px; margin: 0 auto; }
-        .product-card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.2s; }
-        img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
-        h3 { font-size: 16px; margin: 10px 0; color: #333; }
-        .share-btn { background: #25D366; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; text-align: center; color: #333; }
+        h2 { margin-bottom: 20px; color: #1a1a1a; }
+        
+        /* עיצוב כפתורי קטגוריות */
+        .categories-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .cat-btn:hover { background: #e9e9e9; }
+        .cat-btn.active { background: #007bff; color: white; border-color: #007bff; }
+
+        /* עיצוב תיבת חיפוש */
+        input { width: 90%; max-width: 500px; padding: 12px 20px; margin-bottom: 25px; border: 1px solid #ddd; border-radius: 25px; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); outline: none; }
+        
+        /* גלריה */
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; max-width: 1100px; margin: 0 auto; }
+        .product-card { background: white; padding: 12px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-5px); }
+        
+        img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; background: #eee; }
+        .category-tag { font-size: 11px; color: #007bff; font-weight: bold; margin-bottom: 5px; }
+        h3 { font-size: 15px; margin: 5px 0 15px 0; height: 40px; overflow: hidden; }
+        
+        .share-btn { background: #25D366; color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .share-btn:hover { background: #1ebe57; }
     </style>
 </head>
 <body>
 
     <h2>קטלוג מוצרים לצוות</h2>
-    <input type="text" id="searchBar" placeholder="חפש מוצר..." onkeyup="renderProducts()">
+
+    <div class="categories-container">
+        <button class="cat-btn active" onclick="filterByCat('הכל', this)">הכל</button>
+        <button class="cat-btn" onclick="filterByCat('מחיצות', this)">מחיצות</button>
+        <button class="cat-btn" onclick="filterByCat('דלתות', this)">דלתות</button>
+        <button class="cat-btn" onclick="filterByCat('פרזול', this)">פרזול</button>
+        <button class="cat-btn" onclick="filterByCat('הכנות לקבלנים', this)">הכנות לקבלנים</button>
+    </div>
+
+    <input type="text" id="searchBar" placeholder="חפש שם מוצר..." onkeyup="renderProducts()">
 
     <div class="gallery" id="productGallery"></div>
 
     <script>
-        // --- כאן אתה מוסיף מוצרים! פשוט תעתיק שורה ותשנה את הפרטים ---
+        // --- רשימת המוצרים שלך ---
         const products = [
-            { name: "דלת זכוכית", image: "link_to_GlassDoor.jpg" },
-            { name: "דלת זכוכית עם מחיצה", image: "link_to_GlassDoorwg.jpg" },
-             { name: "זכוכית מעורגלת עם דלת", image: "link_to_Cglass.jpg" },
-            { name: "נסיגה בגבס לטובת פאנל אטום", image: "link_to_drywallrecess.jpg" }
+            { name: "דלת זכוכית", image: "GlassDoor.jpeg", category: "דלתות" },
+            { name: "דלת זכוכית עם מחיצה", image: "GlassDoorwg.jpeg", category: "דלתות" },
+             { name: "דלת זכוכית עם מחיצה", image: "GlassDoorwg.jpeg", category: "מחיצות" },
+            { name: "זכוכית מעוגלת עם דלת", image: "Cglass.jpeg", category: "מחיצות" },
+            { name: "נסיגה בגבס לטובת פאנל אטום", image: "drywallrecess.jpeg", category: "הכנות לקבלנים" }
         ];
+
+        let currentCategory = 'הכל';
+
+        function filterByCat(cat, btn) {
+            currentCategory = cat;
+            
+            // עדכון עיצוב הכפתורים
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            renderProducts();
+        }
 
         function renderProducts() {
             const searchTerm = document.getElementById('searchBar').value.toLowerCase();
             const gallery = document.getElementById('productGallery');
             gallery.innerHTML = '';
 
-            const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm));
+            const filtered = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = (currentCategory === 'הכל' || p.category === currentCategory);
+                return matchesSearch && matchesCategory;
+            });
 
             filtered.forEach(p => {
                 gallery.innerHTML += `
                     <div class="product-card">
-                        <img src="${p.image}" alt="${p.name}">
+                        <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150?text=Missing+Image'">
+                        <div class="category-tag">${p.category}</div>
                         <h3>${p.name}</h3>
                         <button class="share-btn" onclick="share('${p.image}', '${p.name}')">שלח בווטסאפ</button>
                     </div>
@@ -48,13 +91,17 @@
             });
         }
 
-        function share(url, name) {
-            const text = " " + name + ": " + window.location.origin + window.location.pathname + url;
+        function share(imageName, productName) {
+            // יוצר לינק מלא לתמונה
+            const baseUrl = window.location.href.split('index.html')[0];
+            const fullImageUrl = baseUrl + imageName;
+            const text = "היי, הנה פרטים על " + productName + ": " + fullImageUrl;
             window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
         }
 
-        // טעינה ראשונית
+        // טעינה ראשונית של המוצרים
         renderProducts();
     </script>
+
 </body>
 </html>
