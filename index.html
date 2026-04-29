@@ -83,4 +83,50 @@
         }
 
         function renderProducts() {
-            const searchTerm = document
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const gallery = document.getElementById('productGallery');
+            gallery.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = (currentCategory === 'הכל' || p.category === currentCategory);
+                return matchesSearch && matchesCategory;
+            });
+
+            filtered.forEach(p => {
+                gallery.innerHTML += `
+                    <div class="product-card" onclick="openLightbox('${p.image}')">
+                        <img class="card-img" src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150?text=Missing+Image'">
+                        <div class="category-tag">${p.category}</div>
+                        <h3>${p.name}</h3>
+                        <button class="share-btn" onclick="share('${p.image}', event)">שלח בווטסאפ</button>
+                    </div>
+                `;
+            });
+        }
+
+        function share(imageName, e) {
+            e.stopPropagation(); 
+            const baseUrl = window.location.href.split('index.html')[0];
+            const directImageUrl = baseUrl + imageName;
+            // שולח רק את הלינק הישיר לתמונה ללא טקסט נוסף
+            window.open("https://wa.me/?text=" + encodeURIComponent(directImageUrl), '_blank');
+        }
+
+        function openLightbox(imageUrl) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const baseUrl = window.location.href.split('index.html')[0];
+            lightboxImg.src = baseUrl + imageUrl;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        renderProducts();
+    </script>
+
+</body>
+</html>
